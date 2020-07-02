@@ -1,14 +1,25 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState, useRef, useEffect} from 'react';
-import {View, StyleSheet, PanResponder, Animated} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  PanResponder,
+  Animated,
+  TouchableOpacity,
+  Image,
+  Modal,
+} from 'react-native';
 import ItemProfile from '../itemProfile';
 import {request} from '../../request/Request';
 import AsyncStorage from '@react-native-community/async-storage';
+import FavouriteProfile from '../favouriteProfile';
 
 const key = 'favourites';
+let storage = null;
 const MainScreen = () => {
-  const [data] = useState(['1', '2', '3', '4', '5']);
   const [profiles, setProfiles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showFavourite, setShowFavourite] = useState(false);
   const position = useRef(new Animated.ValueXY()).current;
   const panResponder = React.useMemo(
     () =>
@@ -23,16 +34,15 @@ const MainScreen = () => {
             position.setValue({x: 0, y: 0});
           } else if (gestureState.dx < -180) {
             let favourites = [];
-            const storage = await AsyncStorage.getItem(key);
             if (storage === null) {
               favourites.push(profiles[currentIndex]);
-              console.log(JSON.stringify(favourites));
               await AsyncStorage.setItem(key, JSON.stringify(favourites));
             } else {
               favourites = JSON.parse(storage);
               favourites.push(profiles[currentIndex]);
-              // console.log(favourites);
+              await AsyncStorage.setItem(key, JSON.stringify(favourites));
             }
+            storage = JSON.stringify(favourites);
             setCurrentIndex(currentIndex + 1);
             position.setValue({x: 0, y: 0});
           } else {
@@ -43,6 +53,10 @@ const MainScreen = () => {
     [currentIndex, profiles],
   );
 
+  const onPressFavourite = () => {
+    setShowFavourite(!showFavourite);
+  };
+
   const getRandomProfile = async () => {
     const res = await request.get('api/0.4/?randomapi');
     if (res) {
@@ -50,8 +64,13 @@ const MainScreen = () => {
     }
   };
 
+  const getFavourite = async () => {
+    storage = await AsyncStorage.getItem(key);
+  };
+
   useEffect(() => {
     getRandomProfile();
+    getFavourite();
   }, []);
 
   return (
@@ -59,20 +78,30 @@ const MainScreen = () => {
       <View style={styles.header} />
       {profiles
         .map((item, index) => {
-          return index < currentIndex ? (
-            <></>
-          ) : index === currentIndex ? (
+          return index < currentIndex ? null : index === currentIndex ? (
             <ItemProfile
+              key={`${index}`}
               item={item}
               index={index}
               panResponder={panResponder}
               position={position}
             />
           ) : (
-            <ItemProfile item={item} index={index} position={position} />
+            <ItemProfile key={`${index}`} item={item} index={index} />
           );
         })
         .reverse()}
+      <TouchableOpacity style={styles.tnFavourite} onPress={onPressFavourite}>
+        <Image source={require('../../icon/heart.png')} />
+      </TouchableOpacity>
+      <Modal visible={showFavourite} animationType="slide">
+        {showFavourite && (
+          <FavouriteProfile
+            onPressBack={onPressFavourite}
+            data={JSON.parse(storage)}
+          />
+        )}
+      </Modal>
     </View>
   );
 };
@@ -80,6 +109,17 @@ const MainScreen = () => {
 const styles = StyleSheet.create({
   container: {width: '100%', height: '100%', backgroundColor: '#e3e3e3'},
   header: {height: 100, backgroundColor: '#2e2b2b'},
+  tnFavourite: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 50,
+    right: 20,
+  },
 });
 
 export default MainScreen;

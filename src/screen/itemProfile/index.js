@@ -23,11 +23,14 @@ const btn = {
 
 const ItemProfile = ({item, index, panResponder, position}) => {
   const [currentBtn, setBtnSelected] = useState(2);
-  const rotation = position.x.interpolate({
-    inputRange: [-WIDTH_SCREEN / 2, 0, WIDTH_SCREEN / 2],
-    outputRange: ['-10deg', '0deg', '10deg'],
-    extrapolate: 'clamp',
-  });
+  let rotation = null;
+  if (position) {
+    rotation = position.x.interpolate({
+      inputRange: [-WIDTH_SCREEN / 2, 0, WIDTH_SCREEN / 2],
+      outputRange: ['-10deg', '0deg', '10deg'],
+      extrapolate: 'clamp',
+    });
+  }
 
   const onPressBtn = (value) => {
     const {personal, calender, location, phone, lock} = btn;
@@ -161,7 +164,7 @@ const ItemProfile = ({item, index, panResponder, position}) => {
   };
 
   return panResponder ? (
-    <View key={`${index}`} style={styles.container}>
+    <View style={styles.container}>
       <Animated.View
         {...panResponder.panHandlers}
         style={[
@@ -182,15 +185,14 @@ const ItemProfile = ({item, index, panResponder, position}) => {
       </Animated.View>
     </View>
   ) : (
-    <View key={`${index}`} style={styles.container}>
+    <View style={styles.container}>
       <Animated.View style={[styles.inner]}>
         <View style={styles.header} />
-        <View style={styles.content}>
-          <Text>{'item'}</Text>
-        </View>
+        {renderContent()}
         <View style={styles.viewAvatar}>
-          <Image style={styles.avatar} />
+          <Image source={{uri: item.user.picture}} style={styles.avatar} />
         </View>
+        {renderBtn()}
       </Animated.View>
     </View>
   );
