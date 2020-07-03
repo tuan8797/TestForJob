@@ -30,9 +30,6 @@ const MainScreen = () => {
         },
         onPanResponderRelease: async (evt, gestureState) => {
           if (gestureState.dx > 180) {
-            setCurrentIndex(currentIndex + 1);
-            position.setValue({x: 0, y: 0});
-          } else if (gestureState.dx < -180) {
             let favourites = [];
             if (storage === null) {
               favourites.push(profiles[currentIndex]);
@@ -43,6 +40,9 @@ const MainScreen = () => {
               await AsyncStorage.setItem(key, JSON.stringify(favourites));
             }
             storage = JSON.stringify(favourites);
+            setCurrentIndex(currentIndex + 1);
+            position.setValue({x: 0, y: 0});
+          } else if (gestureState.dx < -180) {
             setCurrentIndex(currentIndex + 1);
             position.setValue({x: 0, y: 0});
           } else {
@@ -57,10 +57,29 @@ const MainScreen = () => {
     setShowFavourite(!showFavourite);
   };
 
-  const getRandomProfile = async () => {
+  const loadmore = async () => {
+    const data = profiles;
     const res = await request.get('api/0.4/?randomapi');
     if (res) {
-      setProfiles(res.results);
+      data.push(res.results[0]);
+      const res2 = await request.get('api/0.4/?randomapi');
+      if (res2) {
+        data.push(res2.results[0]);
+        setProfiles(data);
+      }
+    }
+  };
+
+  const getRandomProfile = async () => {
+    const data = [];
+    const res = await request.get('api/0.4/?randomapi');
+    if (res) {
+      data.push(res.results[0]);
+      const res2 = await request.get('api/0.4/?randomapi');
+      data.push(res2.results[0]);
+      const res3 = await request.get('api/0.4/?randomapi');
+      data.push(res3.results[0]);
+      setProfiles(data);
     }
   };
 
@@ -72,6 +91,10 @@ const MainScreen = () => {
     getRandomProfile();
     getFavourite();
   }, []);
+
+  useEffect(() => {
+    loadmore();
+  }, [currentIndex]);
 
   return (
     <View style={styles.container}>
@@ -113,7 +136,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#fff',
+    backgroundColor: '#f0223380',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
