@@ -121,7 +121,7 @@ const ItemProfile = ({item, index, panResponder, position}) => {
     const user = item.user;
     if (currentBtn === btn.personal) {
       return (
-        <View style={styles.content}>
+        <View>
           <Text style={styles.title}>{'My name is'}</Text>
           <Text style={styles.value}>
             {`${user.name.title}. ${user.name.first} ${user.name.last} `}
@@ -130,7 +130,7 @@ const ItemProfile = ({item, index, panResponder, position}) => {
       );
     } else if (currentBtn === btn.calender) {
       return (
-        <View style={styles.content}>
+        <View>
           <Text style={styles.title}>{'My Date of birh is'}</Text>
           <Text style={styles.value}>
             {`${moment.unix(user.dob).format('LL')}`}
@@ -139,21 +139,21 @@ const ItemProfile = ({item, index, panResponder, position}) => {
       );
     } else if (currentBtn === btn.location) {
       return (
-        <View style={styles.content}>
+        <View>
           <Text style={styles.title}>{'My address is'}</Text>
           <Text style={styles.value}>{user.location.street}</Text>
         </View>
       );
     } else if (currentBtn === btn.phone) {
       return (
-        <View style={styles.content}>
+        <View>
           <Text style={styles.title}>{'My phone number is'}</Text>
           <Text style={styles.value}>{user.phone}</Text>
         </View>
       );
     } else if (currentBtn === btn.lock) {
       return (
-        <View style={styles.content}>
+        <View>
           <Text style={styles.title}>{'My cell is'}</Text>
           <Text style={styles.value}>{user.cell}</Text>
         </View>
@@ -177,22 +177,26 @@ const ItemProfile = ({item, index, panResponder, position}) => {
           },
         ]}>
         <View style={styles.header} />
-        {renderContent()}
+        <View style={styles.content}>
+          {renderContent()}
+          {renderBtn()}
+        </View>
         <View style={styles.viewAvatar}>
           <Image source={{uri: item.user.picture}} style={styles.avatar} />
         </View>
-        {renderBtn()}
       </Animated.View>
     </View>
   ) : (
     <View style={styles.container}>
       <Animated.View style={[styles.inner]}>
         <View style={styles.header} />
-        {renderContent()}
+        <View style={styles.content}>
+          {renderContent()}
+          {renderBtn()}
+        </View>
         <View style={styles.viewAvatar}>
           <Image source={{uri: item.user.picture}} style={styles.avatar} />
         </View>
-        {renderBtn()}
       </Animated.View>
     </View>
   );
@@ -201,7 +205,7 @@ const ItemProfile = ({item, index, panResponder, position}) => {
 const styles = StyleSheet.create({
   container: {
     width: WIDTH_SCREEN,
-    height: '50%',
+    // height: '55%',
     position: 'absolute',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -257,8 +261,8 @@ const styles = StyleSheet.create({
   tabBtn: {
     width: '100%',
     height: 50,
-    position: 'absolute',
-    bottom: 0,
+    // position: 'absolute',
+    // bottom: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
